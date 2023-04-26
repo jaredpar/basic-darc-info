@@ -1,0 +1,43 @@
+﻿@page
+@using BasicDarcInfo.Util;
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h2>7.0.4xx Merge</h2>
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Repo</th>
+        <th>Branch</th>
+        <th>Commit</th>
+        <th>Days since commit</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var repo in Model.RepoMergeInfoList)
+    {
+        <tr>
+            <td>@repo.Owner/@repo.Name</td>
+            <td>@repo.Branch</td>
+            @if (repo.LastCommit is { } c)
+            {
+                <td><a href=@GitHubUtil.GetCommitUri(repo.Owner, repo.Name, c)>@c</a></td>
+            }
+            else
+            {
+                <td>missing</td>
+            }
+            @if (repo.LastCommitMerge is { } m)
+            {
+                <td>@((DateTime.UtcNow - m).TotalDays.ToString("n2"))</td>
+            }
+            else
+            {
+                <td>missing</td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>
