@@ -20,7 +20,8 @@ public class DarcInfoModel : PageModel
 
     public async Task OnGet(string release)
     {
-        var list = await _darcInfo.GetRepoMergeInfoList($"release/{release}");
+        var branch = release == "main" ? release : $"release/{release}";
+        var list = await _darcInfo.GetRepoMergeInfoList(branch);
         Release = release;
         RepoMergeInfoList.AddRange(list);
     }
