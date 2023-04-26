@@ -1,11 +1,11 @@
-﻿@page
+﻿@page "darc-info/{release=7.0.3xx}"
 @using BasicDarcInfo.Util;
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
 
-<h2>7.0.4xx Merge</h2>
+<h2>@Model.Release Merge</h2>
 <table class="table table-bordered table-striped">
     <thead>
     <tr>
@@ -41,3 +41,8 @@
     }
     </tbody>
 </table>
+
+<h2>Other Releases</h2>
+<a asp-page="Index" asp-route-release="7.0.2xx">7.0.2xx</a>
+<a asp-page="Index" asp-route-release="7.0.3xx">7.0.3xx</a>
+<a asp-page="Index" asp-route-release="7.0.4xx">7.0.4xx</a>
