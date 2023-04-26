@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BasicDarcInfo.Pages;
 
-public class IndexModel : PageModel
+public class DarcInfoModel : PageModel
 {
-    private readonly ILogger<IndexModel> _logger;
+    private readonly ILogger<DarcInfoModel> _logger;
     private readonly DarcInfo _darcInfo;
 
     public string Release { get; set; } = "";
     public List<RepoMergeInfo> RepoMergeInfoList { get; } = new();
 
-    public IndexModel(DarcInfo darcInfo, ILogger<IndexModel> logger)
+    public DarcInfoModel(DarcInfo darcInfo, ILogger<DarcInfoModel> logger)
     {
         _darcInfo = darcInfo;
         _logger = logger;

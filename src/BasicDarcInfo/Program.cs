@@ -26,7 +26,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapGet("/", context =>
 {
-    context.Response.Redirect("darc-info");
+    context.Response.Redirect("darcinfo");
     return Task.CompletedTask;
 });
 

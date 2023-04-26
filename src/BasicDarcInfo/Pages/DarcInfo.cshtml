@@ -1,8 +1,8 @@
-﻿@page "darc-info/{release=7.0.3xx}"
+﻿@page "/darcinfo/{release=7.0.3xx}"
 @using BasicDarcInfo.Util;
-@model IndexModel
+@model DarcInfoModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Darc Information";
 }
 
 <h2>@Model.Release Merge</h2>
@@ -46,6 +46,6 @@
 <ul>
     @foreach (var r in new[]{ "7.0.2xx", "7.0.3xx", "7.0.4xx"})
     {
-        <li><a asp-page="darc-info" asp-route-relese="@r">@r</a></li>
+        <li><a asp-page="DarcInfo" asp-route-release="@r">@r</a></li>
     }
 </ul>
