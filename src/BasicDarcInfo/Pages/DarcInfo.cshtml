@@ -11,6 +11,7 @@
     <tr>
         <th>Repo</th>
         <th>Branch</th>
+        <th>Subscription</th>
         <th>Commit</th>
         <th>Days since commit</th>
     </tr>
@@ -21,6 +22,7 @@
         <tr>
             <td>@repo.Owner/@repo.Name</td>
             <td>@repo.Branch</td>
+            <td>@repo.Subscription</td>
             @if (repo.LastCommit is { } c)
             {
                 <td><a href=@GitHubUtil.GetCommitUri(repo.Owner, repo.Name, c)>@c</a></td>

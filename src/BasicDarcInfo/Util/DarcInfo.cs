@@ -19,7 +19,8 @@ public sealed class DarcInfo
         var repoList = new List<(string Owner, string Name, List<DefaultChannel> DefaultChannels)>()
         {
             await GetRepository("dotnet", "roslyn"),
-            await GetRepository("dotnet", "razor")
+            await GetRepository("dotnet", "razor"),
+            await GetRepository("dotnet", "format")
         };
 
         var github = ClientFactory.CreateGitHubClient();
@@ -30,6 +31,13 @@ public sealed class DarcInfo
             var sub = subscriptions.SingleOrDefault(x => x.TargetBranch == targetBranch && x.SourceRepository == repoUri);
             if (sub is null)
             {
+                list.Add(new RepoMergeInfo(
+                    repo.Owner,
+                    repo.Name,
+                    subscription: null,
+                    branch: null,
+                    commit: null,
+                    lastCommitMerge: null));
                 continue;
             }
 
@@ -51,6 +59,7 @@ public sealed class DarcInfo
             list.Add(new RepoMergeInfo(
                 repo.Owner,
                 repo.Name,
+                sub.Channel.Name,
                 branch,
                 lastCommit,
                 lastMerge));
@@ -71,6 +80,7 @@ public sealed class RepoMergeInfo
 {
     public string Owner { get; }
     public string Name { get; }
+    public string? Subscription { get; }
     public string? Branch { get; }
     public string? LastCommit { get; }
     public DateTimeOffset? LastCommitMerge { get; }
@@ -82,12 +92,14 @@ public sealed class RepoMergeInfo
     public RepoMergeInfo(
         string owner,
         string name,
+        string? subscription,
         string? branch,
         string? commit,
         DateTimeOffset? lastCommitMerge)
     {
         Owner = owner;
         Name = name;
+        Subscription = subscription;
         Branch = branch;
         LastCommit = commit;
         LastCommitMerge = lastCommitMerge;
