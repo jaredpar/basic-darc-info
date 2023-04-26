@@ -1,3 +1,5 @@
 {
-    "dotnet.defaultSolution": "Basic.Darc.Info.sln"
+    "dotnet.defaultSolution": "Basic.Darc.Info.sln",
+    "appService.defaultWebAppToDeploy": "/subscriptions/0dd31ce2-8aca-4f16-9a82-f8c019012ee0/resourceGroups/darc-info/providers/Microsoft.Web/sites/darc-info",
+    "appService.deploySubpath": "src\\BasicDarcInfo\\bin\\Release\\net7.0\\publish"
 }
