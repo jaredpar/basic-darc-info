@@ -2,10 +2,9 @@ using BasicDarcInfo.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages();
 builder.Services.AddScoped<ClientFactory>();
 builder.Services.AddScoped<DarcInfo>();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -25,5 +24,10 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("darc-info");
+    return Task.CompletedTask;
+});
 
 app.Run();

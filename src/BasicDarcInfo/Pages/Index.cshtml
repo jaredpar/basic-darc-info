@@ -43,6 +43,9 @@
 </table>
 
 <h2>Other Releases</h2>
-<a asp-page="Index" asp-route-release="7.0.2xx">7.0.2xx</a>
-<a asp-page="Index" asp-route-release="7.0.3xx">7.0.3xx</a>
-<a asp-page="Index" asp-route-release="7.0.4xx">7.0.4xx</a>
+<ul>
+    @foreach (var r in new[]{ "7.0.2xx", "7.0.3xx", "7.0.4xx"})
+    {
+        <li><a asp-page="darc-info" asp-route-relese="@r">@r</a></li>
+    }
+</ul>
