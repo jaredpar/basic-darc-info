@@ -1,9 +1,30 @@
-﻿using Microsoft.DotNet.Maestro.Client.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.DotNet.Maestro.Client;
+using Microsoft.DotNet.Maestro.Client.Models;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace BasicDarcInfo.Util;
 
 public sealed class DarcInfo
 {
+    private sealed class DarcSubscriptionInfo
+    {
+        public ImmutableArray<Subscription> SdkSubscriptions { get; }
+        public ImmutableArray<(string Owner, string Name, ImmutableArray<DefaultChannel> DefaultChannels)> RepoDefaultChannels;
+
+        public DarcSubscriptionInfo(
+            ImmutableArray<Subscription> sdkSubscriptions,
+            ImmutableArray<(string Owner, string Name, ImmutableArray<DefaultChannel> DefaultChannels)> repoDefaultChannels)
+        {
+            SdkSubscriptions = sdkSubscriptions;
+            RepoDefaultChannels = repoDefaultChannels;
+        }
+    }
+
+    private static readonly TimeSpan CacheLimit = TimeSpan.FromMinutes(5);
+    private Tuple<DateTime, DarcSubscriptionInfo>? _cache;
+
     private ClientFactory ClientFactory { get; }
 
     public DarcInfo(ClientFactory clientFactory)
@@ -11,21 +32,52 @@ public sealed class DarcInfo
         ClientFactory = clientFactory;
     }
 
-    public async Task<List<RepoMergeInfo>> GetRepoMergeInfoList(string targetBranch)
+    private async Task<DarcSubscriptionInfo> GetDarcSubscriptionInfo(bool useCache)
     {
-        var api = ClientFactory.CreateMaestroApi();
-        var subscriptions = await api.Subscriptions.ListSubscriptionsAsync(targetRepository: GitHubUtil.GetRepoUri("dotnet", "sdk"));
-
-        var repoList = new List<(string Owner, string Name, List<DefaultChannel> DefaultChannels)>()
+        if (useCache &&
+            _cache is { } tuple &&
+            DateTime.UtcNow - tuple.Item1 < CacheLimit)
         {
-            await GetRepository("dotnet", "roslyn"),
-            await GetRepository("dotnet", "razor"),
-            await GetRepository("dotnet", "format")
-        };
+            return tuple.Item2;
+        }
 
+        var info = await GetCore();
+        _cache = Tuple.Create(DateTime.UtcNow, info);
+        return info;
+
+        async Task<DarcSubscriptionInfo> GetCore()
+        {
+            var api = ClientFactory.CreateMaestroApi();
+            var subscriptions = await api.Subscriptions.ListSubscriptionsAsync(targetRepository: GitHubUtil.GetRepoUri("dotnet", "sdk"));
+
+            var repoList = new List<(string Owner, string Name, ImmutableArray<DefaultChannel> DefaultChannels)>()
+            {
+                await GetRepository(api, "dotnet", "roslyn"),
+                await GetRepository(api, "dotnet", "razor"),
+                await GetRepository(api, "dotnet", "msbuild"),
+                await GetRepository(api, "dotnet", "format")
+            };
+
+            return new DarcSubscriptionInfo(
+                subscriptions.ToImmutableArray(),
+                repoList.ToImmutableArray());
+        }
+
+        static async Task<(string Owner, string Name, ImmutableArray<DefaultChannel> DefaultChannels)> GetRepository(IMaestroApi api, string owner, string name)
+        {
+            var repository = new Repository(owner, name);
+            var channels = await api.DefaultChannels.ListAsync(repository: GitHubUtil.GetRepoUri(owner, name));
+            return (owner, name, channels.ToImmutableArray());
+        }
+    }
+
+    public async Task<List<RepoMergeInfo>> GetRepoMergeInfoList(string targetBranch, bool useCache = true)
+    {
+        var darcInfo = await GetDarcSubscriptionInfo(useCache);
         var github = ClientFactory.CreateGitHubClient();
+        var subscriptions = darcInfo.SdkSubscriptions;
         var list = new List<RepoMergeInfo>();
-        foreach (var repo in repoList)
+        foreach (var repo in darcInfo.RepoDefaultChannels)
         {
             var repoUri = GitHubUtil.GetRepoUri(repo.Owner, repo.Name);
             var sub = subscriptions.SingleOrDefault(x => x.TargetBranch == targetBranch && x.SourceRepository == repoUri);
@@ -67,12 +119,6 @@ public sealed class DarcInfo
 
         return list;
 
-        async Task<(string Owner, string Name, List<DefaultChannel> DefaultChannels)> GetRepository(string owner, string name)
-        {
-            var repository = new Repository(owner, name);
-            var channels = await api.DefaultChannels.ListAsync(repository: GitHubUtil.GetRepoUri(owner, name));
-            return (owner, name, channels.ToList());
-        }
     }
 }
 

@@ -18,10 +18,10 @@ public class DarcInfoModel : PageModel
         _logger = logger;
     }
 
-    public async Task OnGet(string release)
+    public async Task OnGet(string release, [FromQuery] bool useCache = true)
     {
         var branch = release == "main" ? release : $"release/{release}";
-        var list = await _darcInfo.GetRepoMergeInfoList(branch);
+        var list = await _darcInfo.GetRepoMergeInfoList(branch, useCache);
         Release = release;
         RepoMergeInfoList.AddRange(list);
     }

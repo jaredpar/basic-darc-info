@@ -5,7 +5,7 @@ using Microsoft.DotNet.Maestro.Client.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<ClientFactory>();
-builder.Services.AddScoped<DarcInfo>();
+builder.Services.AddSingleton<DarcInfo>();
 builder.Services.AddRazorPages();
 
 if (builder.Environment.IsProduction())
@@ -31,11 +31,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapRazorPages();
 app.MapGet("/", context =>
 {
     context.Response.Redirect("darcinfo");
     return Task.CompletedTask;
 });
+app.MapRazorPages();
 
 app.Run();
