@@ -5,33 +5,28 @@ namespace BasicDarcInfo.Util;
 
 public sealed class ClientFactory
 {
-    public async Task<GitHubClient> CreateGitHubClientAsync()
+    private readonly string _githubToken;
+    private readonly string _darcToken;
+
+    public ClientFactory(IConfiguration configuration)
     {
-        var token = await GetTokenAsync("github");
+        _githubToken = configuration["github"]!;
+        _darcToken = configuration["darc"]!;
+    }
+
+    public GitHubClient CreateGitHubClient()
+    {
         var github = new GitHubClient(new ProductHeaderValue("darc-info"))
         {
-            Credentials = new Credentials(token)
+            Credentials = new Credentials(_githubToken)
         };
 
         return github;
     }
 
-    public async Task<IMaestroApi> CreateMaestroApiAsync()
+    public IMaestroApi CreateMaestroApi()
     {
-        var token = await GetTokenAsync("darc");
-        var api = ApiFactory.GetAuthenticated("https://maestro-prod.westus2.cloudapp.azure.com", token);
+        var api = ApiFactory.GetAuthenticated("https://maestro-prod.westus2.cloudapp.azure.com", _darcToken);
         return api;
     }
-
-    private static async Task<string> GetTokenAsync(string name)
-    {
-        var filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "tokens.txt");
-        var lines = await File.ReadAllLinesAsync(filePath);
-        return lines
-            .Select(x => x.Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries))
-            .Where(x => x[0] == name)
-            .Select(x => x[1])
-            .Single();
-    }
-
 }

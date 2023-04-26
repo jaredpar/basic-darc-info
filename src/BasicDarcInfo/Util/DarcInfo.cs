@@ -13,7 +13,7 @@ public sealed class DarcInfo
 
     public async Task<List<RepoMergeInfo>> GetRepoMergeInfoList(string targetBranch)
     {
-        var api = await ClientFactory.CreateMaestroApiAsync();
+        var api = ClientFactory.CreateMaestroApi();
         var subscriptions = await api.Subscriptions.ListSubscriptionsAsync(targetRepository: GitHubUtil.GetRepoUri("dotnet", "sdk"));
 
         var repoList = new List<(string Owner, string Name, List<DefaultChannel> DefaultChannels)>()
@@ -22,7 +22,7 @@ public sealed class DarcInfo
             await GetRepository("dotnet", "razor")
         };
 
-        var github = await ClientFactory.CreateGitHubClientAsync();
+        var github = ClientFactory.CreateGitHubClient();
         var list = new List<RepoMergeInfo>();
         foreach (var repo in repoList)
         {
