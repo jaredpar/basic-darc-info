@@ -21,7 +21,7 @@ public class DarcInfoModel : PageModel
     public async Task OnGet(string release, [FromQuery] bool useCache = true)
     {
         var branch = release == "main" ? release : $"release/{release}";
-        var list = await _darcInfo.GetRepoMergeInfoList(branch, useCache);
+        var list = await _darcInfo.GetRepoMergeInfoListAsync(branch, useCache);
         Release = release;
         RepoMergeInfoList.AddRange(list);
     }

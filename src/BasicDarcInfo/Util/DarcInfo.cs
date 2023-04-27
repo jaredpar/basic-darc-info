@@ -71,7 +71,7 @@ public sealed class DarcInfo
         }
     }
 
-    public async Task<List<RepoMergeInfo>> GetRepoMergeInfoList(string targetBranch, bool useCache = true)
+    public async Task<List<RepoMergeInfo>> GetRepoMergeInfoListAsync(string targetBranch, bool useCache = true)
     {
         var darcInfo = await GetDarcSubscriptionInfo(useCache);
         var github = ClientFactory.CreateGitHubClient();
@@ -80,8 +80,45 @@ public sealed class DarcInfo
         foreach (var repo in darcInfo.RepoDefaultChannels)
         {
             var repoUri = GitHubUtil.GetRepoUri(repo.Owner, repo.Name);
-            var sub = subscriptions.SingleOrDefault(x => x.TargetBranch == targetBranch && x.SourceRepository == repoUri);
-            if (sub is null)
+            var anySub = false;
+            foreach (var sub in subscriptions.Where(x => x.TargetBranch == targetBranch && x.SourceRepository == repoUri))
+            {
+                anySub = true;
+
+                var anyDefaultChannels = false;
+                foreach (var defaultChannel in repo.DefaultChannels.Where(x => x.Channel.Id == sub.Channel.Id))
+                {
+                    anyDefaultChannels = true;
+                    await AddForBranchAsync(defaultChannel.Branch);
+                }
+
+                if (!anyDefaultChannels)
+                {
+                    await AddForBranchAsync(null);
+                }
+
+                async Task AddForBranchAsync(string? branch)
+                {
+                    string? lastCommit = null;
+                    DateTimeOffset? lastMerge = null;
+                    if (sub.LastAppliedBuild?.Commit is string commit)
+                    {
+                        lastCommit = commit;
+                        var commitInfo = await github.Git.Commit.Get(repo.Owner, repo.Name, commit);
+                        lastMerge = commitInfo.Committer.Date;
+                    }
+
+                    list.Add(new RepoMergeInfo(
+                        repo.Owner,
+                        repo.Name,
+                        sub.Channel.Name,
+                        branch,
+                        lastCommit,
+                        lastMerge));
+                }
+            }
+
+            if (!anySub)
             {
                 list.Add(new RepoMergeInfo(
                     repo.Owner,
@@ -92,29 +129,6 @@ public sealed class DarcInfo
                     lastCommitMerge: null));
                 continue;
             }
-
-            string? branch = null;
-            if (repo.DefaultChannels.FirstOrDefault(x => x.Channel.Id == sub.Channel.Id) is {} defaultChannel)
-            {
-                branch = defaultChannel.Branch;
-            }
-
-            string? lastCommit = null;
-            DateTimeOffset? lastMerge = null;
-            if (sub.LastAppliedBuild?.Commit is string commit)
-            {
-                lastCommit = commit;
-                var commitInfo = await github.Git.Commit.Get(repo.Owner, repo.Name, commit);
-                lastMerge = commitInfo.Committer.Date;
-            }
-
-            list.Add(new RepoMergeInfo(
-                repo.Owner,
-                repo.Name,
-                sub.Channel.Name,
-                branch,
-                lastCommit,
-                lastMerge));
         }
 
         return list;
