@@ -12,6 +12,10 @@ if (builder.Environment.IsProduction())
 {
     builder.Configuration.AddAzureKeyVault(new Uri("https://darc-info2.vault.azure.net/"), new DefaultAzureCredential());
 }
+else
+{
+    builder.Configuration.AddUserSecrets(typeof(Program).Assembly);
+}
 
 var app = builder.Build();
 

@@ -65,7 +65,6 @@ public sealed class DarcInfo
 
         static async Task<(string Owner, string Name, ImmutableArray<DefaultChannel> DefaultChannels)> GetRepository(IMaestroApi api, string owner, string name)
         {
-            var repository = new Repository(owner, name);
             var channels = await api.DefaultChannels.ListAsync(repository: GitHubUtil.GetRepoUri(owner, name));
             return (owner, name, channels.ToImmutableArray());
         }
