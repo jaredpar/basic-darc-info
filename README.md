@@ -15,3 +15,5 @@ Run
 > dotnet user-secrets set github <token value />
 ```
 
+# Deployment
+Install the Azure Web App Extension and deploy via VS Code
