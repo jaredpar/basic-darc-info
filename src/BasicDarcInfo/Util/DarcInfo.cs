@@ -55,7 +55,8 @@ public sealed class DarcInfo
                 await GetRepository(api, "dotnet", "roslyn"),
                 await GetRepository(api, "dotnet", "razor"),
                 await GetRepository(api, "dotnet", "msbuild"),
-                await GetRepository(api, "dotnet", "format")
+                await GetRepository(api, "dotnet", "format"),
+                await GetRepository(api, "dotnet", "aspnetcore")
             };
 
             return new DarcSubscriptionInfo(
