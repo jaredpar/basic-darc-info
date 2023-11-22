@@ -1,3 +1,4 @@
+using System.Collections;
 using Azure.Identity;
 using BasicDarcInfo.Util;
 using Microsoft.DotNet.Maestro.Client.Models;
@@ -15,6 +16,7 @@ if (builder.Environment.IsProduction())
 else
 {
     builder.Configuration.AddUserSecrets(typeof(Program).Assembly);
+    builder.Configuration.AddEnvironmentVariables();
 }
 
 var app = builder.Build();
@@ -25,7 +27,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-
 }
 
 app.UseHttpsRedirection();
