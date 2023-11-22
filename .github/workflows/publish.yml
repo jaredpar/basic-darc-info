@@ -1,0 +1,30 @@
+name: Build and deploy container app to Azure
+
+on: push
+
+env:
+  AZURE_WEBAPP_NAME: darc-info
+  CONTAINER_REGISTRY: paranoidacruw2.azurecr.io
+  
+jobs:
+  build-and-deploy-to-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+    - uses: actions/checkout@v3
+    - name: ACR Authentication
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.CONTAINER_REGISTRY }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}    
+    - name: Docker Build & Push to ACR
+      run: |
+        docker build . -t ${{ env.CONTAINER_REGISTRY }}/darc-info:${{ github.sha }}
+        docker push ${{ env.CONTAINER_REGISTRY }}/darc-info:${{ github.sha }} 
+
+    - name: 'Deploy to Azure Web App for Container'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.AZURE_WEBAPP_NAME }} 
+        images: ${{ env.CONTAINER_REGISTRY }}/darc-info:${{ github.sha }}
