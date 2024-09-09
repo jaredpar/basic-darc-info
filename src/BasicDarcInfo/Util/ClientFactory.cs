@@ -26,7 +26,8 @@ public sealed class ClientFactory
 
     public IMaestroApi CreateMaestroApi()
     {
-        var api = ApiFactory.GetAuthenticated("https://maestro-prod.westus2.cloudapp.azure.com", _darcToken);
-        return api;
+        throw null!;
+        // var api = ApiFactory.GetAuthenticated("https://maestro-prod.westus2.cloudapp.azure.com", _darcToken);
+        // return api;
     }
 }

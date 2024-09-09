@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.12.0" />
+    <PackageVersion Include="Microsoft.DotNet.Maestro.Client" Version="1.1.0-beta.24459.3" />
+    <PackageVersion Include="Octokit" Version="5.0.4" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.4" />
+  </ItemGroup>
+</Project>

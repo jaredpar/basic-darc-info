@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)..\artifacts</ArtifactsPath>
+    <NoWarn>NU1507</NoWarn>
+  </PropertyGroup>
+</Project>
